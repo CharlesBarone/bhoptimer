@@ -889,7 +889,7 @@ public void Shavit_OnLeaveZone(int client, int type, int track, int id, int enti
 	}
 }
 
-public void Shavit_OnFinish_fPost(int client)
+public void Shavit_OnFinish_Post(int client)
 {
 	if(gB_TAS[client])
 	{
