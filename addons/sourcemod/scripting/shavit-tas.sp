@@ -10,7 +10,7 @@
 public Plugin myinfo = 
 {
 	name = "TAS Style",
-	author = "Charles_(hypnos)",
+	author = "Charles_(hypnos) // Wigglehack by Kamay",
 	description = "TAS Style",
 	version = "1.9.6",
 	url = "https://hyps.dev/"
@@ -37,7 +37,6 @@ float gF_IndexCounter[MAXPLAYERS+1];
 float gF_LastAngle[MAXPLAYERS];
 float gF_MaxMove;
 float gF_Power[MAXPLAYERS + 1] = {1.0, ...};
-float gF_SideMove;
 float gF_TASTime[MAXPLAYERS+1];
 float gF_TickRate;
 float gF_TimeScaleTicksPassed[MAXPLAYERS+1];
@@ -56,12 +55,10 @@ public void OnPluginStart()
 	
 	if(g_Game != Engine_CSGO)
 	{
-		gF_SideMove = 400.0;
 		gF_MaxMove = 400.0;
 	}
 	else
 	{
-		gF_SideMove = 450.0;
 		gF_MaxMove = 450.0;
 		ConVar sv_air_max_wishspeed = FindConVar("sv_air_max_wishspeed");
 		sv_air_max_wishspeed.AddChangeHook(OnWishSpeedChanged);
@@ -132,6 +129,7 @@ public void Shavit_OnStyleChanged(int client, int oldstyle, int newstyle)
 	{ //on
 		gB_TAS[client] = true;
 		Shavit_PrintToChat(client, "This is a TAS style. Type !tashelp for more information.");
+		DrawPanel(client);
 	}
 }
 
@@ -268,6 +266,10 @@ public Action Command_MinusOne(int client, int args)
 public Action Command_TASMenu(int client, int args)
 {
 	gB_TASMenu[client] = !gB_TASMenu[client];
+	if(gB_TASMenu[client])
+	{
+		DrawPanel(client);
+	}
 	return Plugin_Handled;
 }
 
@@ -280,6 +282,7 @@ public Action Command_TASHelp(int client, int args)
 public Action CommandListener_TAS(int client, const char[] command, int args)
 {
 	gB_TASMenu[client] = true;
+	DrawPanel(client);
 	return Plugin_Continue;
 }
 
@@ -348,16 +351,17 @@ public void OnClientPutInServer(int client)
 	gF_Power[client] = 1.0;
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float fVelocity[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
 	if (IsValidClient(client, true) && gB_TAS[client])
 	{
-		DrawPanel(client);
-	
+
 		if(!gB_TAS[client])
 		{
 			return Plugin_Continue;
 		}
+
+		DrawPanel(client);
 
 		if(Shavit_GetTimerStatus(client) != Timer_Running)
 		{
@@ -383,15 +387,15 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				/*
 							AUTO STRAFER START
 														*/
-				if(buttons & IN_FORWARD && vel[0] <= 50.0)
+				if(buttons & IN_FORWARD && fVelocity[0] <= 50.0)
 				{
-					vel[0] = 450.0;
+					fVelocity[0] = 450.0;
 				}
 
 				float yaw_change = 0.0;
-				if(vel[0] > 50.0)
+				if(fVelocity[0] > 50.0)
 				{
-					yaw_change = 30.0 * FloatAbs(30.0 / vel[0]);
+					yaw_change = 30.0 * FloatAbs(30.0 / fVelocity[0]);
 				}
 
 				if (gB_AutoStrafeEnabled[client] == true && Shavit_GetTimerStatus(client) == Timer_Running && gB_TAS[client] && !(GetEntityFlags(client) & FL_ONGROUND) && (GetEntityMoveType(client) != MOVETYPE_NOCLIP) && !(buttons & IN_FORWARD) && !(buttons & IN_BACK) && !(buttons & IN_MOVELEFT) && !(buttons & IN_MOVERIGHT))
@@ -400,13 +404,13 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					{
 						angles[1] += yaw_change;
 						//buttons |= IN_MOVERIGHT;
-						vel[1] = gF_SideMove;
+						fVelocity[1] = gF_MaxMove;
 					}
 					else if(diff > 0)
 					{
 						angles[1] -= yaw_change;
 						//buttons |= IN_MOVELEFT;
-						vel[1] = gF_SideMove * -1.0;
+						fVelocity[1] = gF_MaxMove * -1.0;
 					}
 				}
 				/*
@@ -457,48 +461,48 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 							}
 
 
-							float fVelocity[3], flVelocity2D[2];
+							float fVelocity[3], fVelocity2D[2];
 
 							GetEntPropVector(client, Prop_Data, "m_vecVelocity", fVelocity);
 
-							flVelocity2D[0] = fVelocity[0];
-							flVelocity2D[1] = fVelocity[1];
+							fVelocity2D[0] = fVelocity[0];
+							fVelocity2D[1] = fVelocity[1];
 
-							// PrintToChat(client, "%f", SquareRoot(flVelocity2D[0] * flVelocity2D[0] + flVelocity2D[1] * flVelocity2D[1]));
+							// PrintToChat(client, "%f", SquareRoot(fVelocity2D[0] * fVelocity2D[0] + fVelocity2D[1] * fVelocity2D[1]));
 
-							GetIdealMovementsInAir(angles[1], flVelocity2D, fMaxSpeed, fSurfaceFriction, fFowardMove, fSideMove);
+							GetIdealMovementsInAir(angles[1], fVelocity2D, fMaxSpeed, fSurfaceFriction, fFowardMove, fSideMove);
 
-							float flAngleDifference = AngleNormalize(angles[1] - gF_LastAngle[client]);
-							float flCurrentAngles = FloatAbs(flAngleDifference);
+							float fAngleDifference = AngleNormalize(angles[1] - gF_LastAngle[client]);
+							float fCurrentAngles = FloatAbs(fAngleDifference);
 
 
 							// Right
-							if (flAngleDifference < 0.0)
+							if (fAngleDifference < 0.0)
 							{
-								float flMaxDelta = GetMaxDeltaInAir(flVelocity2D, fMaxSpeed, fSurfaceFriction, true);
-								vel[1] = gF_MaxMove;
+								float fMaxDelta = GetMaxDeltaInAir(fVelocity2D, fMaxSpeed, fSurfaceFriction, true);
+								fVelocity[1] = gF_MaxMove;
 
-								if (flCurrentAngles <= flMaxDelta * gF_Power[client])
+								if (fCurrentAngles <= fMaxDelta * gF_Power[client])
 								{
-									vel[0] = fFowardMove * gF_MaxMove;
-									vel[1] = fSideMove * gF_MaxMove;
+									fVelocity[0] = fFowardMove * gF_MaxMove;
+									fVelocity[1] = fSideMove * gF_MaxMove;
 								}
 							}
-							else if (flAngleDifference > 0.0)
+							else if (fAngleDifference > 0.0)
 							{
-								float flMaxDelta = GetMaxDeltaInAir(flVelocity2D, fMaxSpeed, fSurfaceFriction, false);
-								vel[1] = -gF_MaxMove;
+								float fMaxDelta = GetMaxDeltaInAir(fVelocity2D, fMaxSpeed, fSurfaceFriction, false);
+								fVelocity[1] = -gF_MaxMove;
 
-								if (flCurrentAngles <= flMaxDelta * gF_Power[client])
+								if (fCurrentAngles <= fMaxDelta * gF_Power[client])
 								{
-									vel[0] = fFowardMove * gF_MaxMove;
-									vel[1] = fSideMove * gF_MaxMove;
+									fVelocity[0] = fFowardMove * gF_MaxMove;
+									fVelocity[1] = fSideMove * gF_MaxMove;
 								}
 							}
 							else
 							{
-								vel[0] = fFowardMove * gF_MaxMove;
-								vel[1] = fSideMove * gF_MaxMove;
+								fVelocity[0] = fFowardMove * gF_MaxMove;
+								fVelocity[1] = fSideMove * gF_MaxMove;
 							}
 						}
 					}
@@ -545,8 +549,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				}
 				else if(!(GetEntityFlags(client) & FL_ONGROUND))
 				{
-					vel[0] = 0.0;
-					vel[1] = 0.0;
+					fVelocity[0] = 0.0;
+					fVelocity[1] = 0.0;
 				}
 
 				// Fix boosters
@@ -572,9 +576,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				}
 				else
 				{
-					vel[0] = 0.0;
-					vel[1] = 0.0;
-					vel[2] = 0.0;
+					fVelocity[0] = 0.0;
+					fVelocity[1] = 0.0;
+					fVelocity[2] = 0.0;
 					int iFrameSize = GetArraySize(gA_Frames[client]);
 					int iFrameNumber = gI_IndexCounter[client];
 					if(iFrameSize > 1 && iFrameNumber > 1)
@@ -615,9 +619,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 			else if(gI_Status[client] == BACKWARD)
 			{
-				vel[0] = 0.0;
-				vel[1] = 0.0;
-				vel[2] = 0.0;
+				fVelocity[0] = 0.0;
+				fVelocity[1] = 0.0;
+				fVelocity[2] = 0.0;
 				int iFrameSize = GetArraySize(gA_Frames[client]);
 				int iFrameNumber = gI_IndexCounter[client];
 				if(iFrameSize > 1 && iFrameNumber > 2)
@@ -661,9 +665,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 			else if(gI_Status[client] == FORWARD)
 			{
-				vel[0] = 0.0;
-				vel[1] = 0.0;
-				vel[2] = 0.0;
+				fVelocity[0] = 0.0;
+				fVelocity[1] = 0.0;
+				fVelocity[2] = 0.0;
 				int iFrameSize = GetArraySize(gA_Frames[client]);
 				int iFrameNumber = gI_IndexCounter[client];
 				if(iFrameSize > 1 && iFrameNumber < iFrameSize-1)
@@ -707,9 +711,9 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 			else
 			{
-				vel[0] = 0.0;
-				vel[1] = 0.0;
-				vel[2] = 0.0;
+				fVelocity[0] = 0.0;
+				fVelocity[1] = 0.0;
+				fVelocity[2] = 0.0;
 				gI_Status[client] = PAUSED;
 			}
 		}
@@ -750,10 +754,11 @@ bool DrawPanel(int client)
 	DrawPanelText(hPanel, " ");
 
 	SetPanelCurrentKey(hPanel, 5);
-	FormatEx(sBuffer, sizeof(sBuffer), "Toggle autostrafe %s", gB_AutoStrafeEnabled[client]?"[ON]":"[OFF]");
+	// match current timer menu standards
+	FormatEx(sBuffer, sizeof(sBuffer), "Toggle autostrafe %s", gB_AutoStrafeEnabled[client]?"[x]":"[ ]");
 	DrawPanelItem(hPanel, sBuffer);
 	
-	FormatEx(sBuffer, sizeof(sBuffer), "Toggle wigglehack %s", gB_Strafing[client]?"[ON]":"[OFF]");
+	FormatEx(sBuffer, sizeof(sBuffer), "Toggle wigglehack %s", gB_Strafing[client]?"[x]":"[ ]");
 	DrawPanelItem(hPanel, sBuffer);
 	
 	DrawPanelText(hPanel, " ");
@@ -764,6 +769,8 @@ bool DrawPanel(int client)
 	DrawPanelItem(hPanel, "Restart");
 	DrawPanelItem(hPanel, "Exit");
 	SendPanelToClient(hPanel, client, Panel_Handler, 1);
+
+	delete hPanel;
 	return true;
 }
 
@@ -800,7 +807,9 @@ public int Panel_Handler(Handle menu, MenuAction action, int param1, int param2)
 				case 2:
 				{
 					if(Shavit_InsideZone(param1, Zone_Start, -1))
+					{
 						return;
+					}
 
 					if(gI_Status[param1] != BACKWARD)
 					{
@@ -808,8 +817,6 @@ public int Panel_Handler(Handle menu, MenuAction action, int param1, int param2)
 					}
 					else
 					{
-						//ResumePlayer(param1);
-						//gI_Status[param1] = RUN;
 						gI_Status[param1] = PAUSED;
 					}
 				}
@@ -826,8 +833,6 @@ public int Panel_Handler(Handle menu, MenuAction action, int param1, int param2)
 					}
 					else
 					{
-						//ResumePlayer(param1);
-						//gI_Status[param1] = RUN;
 						gI_Status[param1] = PAUSED;
 					}
 				}
@@ -876,6 +881,7 @@ public int Panel_Handler(Handle menu, MenuAction action, int param1, int param2)
 				{
 					gB_TASMenu[param1] = false;
 					Shavit_PrintToChat(param1, "Type !tasmenu to reopen the menu.");
+					delete menu;
 				}
 			}
 		}
@@ -1024,10 +1030,10 @@ float Vec2DToYaw(float vec[2])
 	{
 		float vecNormalized[2];
 
-		float flLength = SquareRoot(vec[0] * vec[0] + vec[1] * vec[1]);
+		float fLength = SquareRoot(vec[0] * vec[0] + vec[1] * vec[1]);
 
-		vecNormalized[0] = vec[0] / flLength;
-		vecNormalized[1] = vec[1] / flLength;
+		vecNormalized[0] = vec[0] / fLength;
+		vecNormalized[1] = vec[1] / fLength;
 
 		// Credits to Valve.
 		fYaw = ArcTangent2(vecNormalized[1], vecNormalized[0]) * (180.0 / FLOAT_PI);
@@ -1037,15 +1043,15 @@ float Vec2DToYaw(float vec[2])
 	return fYaw;
 }
 
-void Solve2DMovementsVars(float vecWishDir[2], float vecForward[2], float vecRight[2], float &fForwardMove, float &fSideMove)
+void Solve2DMovementsVars(float vWishDir[2], float vForward[2], float vRight[2], float &fForwardMove, float &fSideMove)
 {
 
-	float v = vecWishDir[0];
-	float w = vecWishDir[1];
-	float a = vecForward[0];
-	float c = vecRight[0];
-	float e = vecForward[1];
-	float f = vecRight[1];
+	float v = vWishDir[0];
+	float w = vWishDir[1];
+	float a = vForward[0];
+	float c = vRight[0];
+	float e = vForward[1];
+	float f = vRight[1];
 
 	float fDivide = (c * e - a * f);
 	if(fDivide == 0.0)
@@ -1074,19 +1080,19 @@ float GetThetaAngleInAir(float fVelocity[2], float fAirAccelerate, float fMaxSpe
 		{
 			return 90.0;
 		}
-		float flCosTheta = fWantedDotProduct / fVelLength2D;
+		float fCosTheta = fWantedDotProduct / fVelLength2D;
 
-		if (flCosTheta > 1.0)
+		if (fCosTheta > 1.0)
 		{
-			flCosTheta = 1.0;
+			fCosTheta = 1.0;
 		}
-		else if(flCosTheta < -1.0)
+		else if(fCosTheta < -1.0)
 		{
-			flCosTheta = -1.0;
+			fCosTheta = -1.0;
 		}
 
 
-		float fTheta = ArcCosine(flCosTheta) * (180.0 / FLOAT_PI);
+		float fTheta = ArcCosine(fCosTheta) * (180.0 / FLOAT_PI);
 
 		return fTheta;
 	}
@@ -1107,10 +1113,10 @@ float SimulateAirAccelerate(float fVelocity[2], float fWishedDirection[2], float
 	}
 
 	// Determine veer amount
-	float flCurrentSpeed = fVelocity[0] * fWishedDirection[0] + fVelocity[1] * fWishedDirection[1];
+	float fCurrentSpeed = fVelocity[0] * fWishedDirection[0] + fVelocity[1] * fWishedDirection[1];
 
 	// See how much to add
-	float fAddSpeed = fCapWishSpeed - flCurrentSpeed;
+	float fAddSpeed = fCapWishSpeed - fCurrentSpeed;
 
 	// If not adding any, done.
 	if(fAddSpeed <= 0.0)
@@ -1148,27 +1154,27 @@ float GetMaxDeltaInAir(float fVelocity[2], float fMaxSpeed, float fSurfaceFricti
 	// Get the best yaw direction on the left.
 	float fBestYawLeft = AngleNormalize(fYawVelocity - fTheta);
 
-	float fTemp[3], VectorBestLeft3D[3], VectorBestRight3D[3];
+	float fTemp[3], vBestLeft3D[3], vBestRight3D[3];
 
 	fTemp[0] = 0.0;
 	fTemp[1] = fBestYawLeft;
 	fTemp[2] = 0.0;
 
-	GetAngleVectors(fTemp, VectorBestLeft3D, NULL_VECTOR, NULL_VECTOR);
+	GetAngleVectors(fTemp, vBestLeft3D, NULL_VECTOR, NULL_VECTOR);
 
 	fTemp[0] = 0.0;
 	fTemp[1] = fBestYawRight;
 	fTemp[2] = 0.0;
 
-	GetAngleVectors(fTemp, VectorBestRight3D, NULL_VECTOR, NULL_VECTOR);
+	GetAngleVectors(fTemp, vBestRight3D, NULL_VECTOR, NULL_VECTOR);
 
 	float vecBestRight[2], vecBestLeft[2];
 
-	vecBestRight[0] = VectorBestRight3D[0];
-	vecBestRight[1] = VectorBestRight3D[1];
+	vecBestRight[0] = vBestRight3D[0];
+	vecBestRight[1] = vBestRight3D[1];
 
-	vecBestLeft[0] = VectorBestLeft3D[0];
-	vecBestLeft[1] = VectorBestLeft3D[1];
+	vecBestLeft[0] = vBestLeft3D[0];
+	vecBestLeft[1] = vBestLeft3D[1];
 
 	float fCalculateVelocityLeft[2], fCalculateVelocityRight[2];
 
@@ -1254,24 +1260,24 @@ void GetIdealMovementsInAir(float fYawWantedDirection, float fVelocity[2], float
 		}
 	}
 
-	float vecForwardWantedDir3D[3], vecRightWantedDir3D[3];
-	float vecForwardWantedDir[2], vecRightWantedDir[2];
+	float vForwardWantedDirection3D[3], vRightWantedDirection3D[3];
+	float vForwardWantedDirection[2], vRightWantedDirection[2];
 
 	TemporaryAngle[0] = 0.0;
 	TemporaryAngle[1] = fYawWantedDirection;
 	TemporaryAngle[2] = 0.0;
 
 	// Convert our yaw wanted direction to vectors.
-	GetAngleVectors(TemporaryAngle, vecForwardWantedDir3D, vecRightWantedDir3D, NULL_VECTOR);
+	GetAngleVectors(TemporaryAngle, vForwardWantedDirection3D, vRightWantedDirection3D, NULL_VECTOR);
 
-	vecForwardWantedDir[0] = vecForwardWantedDir3D[0];
-	vecForwardWantedDir[1] = vecForwardWantedDir3D[1];
+	vForwardWantedDirection[0] = vForwardWantedDirection3D[0];
+	vForwardWantedDirection[1] = vForwardWantedDirection3D[1];
 
-	vecRightWantedDir[0] = vecRightWantedDir3D[0];
-	vecRightWantedDir[1] = vecRightWantedDir3D[1];
+	vRightWantedDirection[0] = vRightWantedDirection3D[0];
+	vRightWantedDirection[1] = vRightWantedDirection3D[1];
 
 	// Solve the movement variables from our wanted direction and the best gain direction.
-	Solve2DMovementsVars(vBestVectorDirection, vecForwardWantedDir, vecRightWantedDir, fForwardMove, fSideMove);
+	Solve2DMovementsVars(vBestVectorDirection, vForwardWantedDirection, vRightWantedDirection, fForwardMove, fSideMove);
 
 	float fLengthMovements = SquareRoot(fForwardMove * fForwardMove + fSideMove * fSideMove);
 
