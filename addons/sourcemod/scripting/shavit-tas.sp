@@ -130,25 +130,25 @@ public Action Command_PlusOne(int client, int args)
 			fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 			fAng[2] = 0.0;
 			
-			float pos2[3];
-			pos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-			pos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-			pos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+			float fPos2[3];
+			fPos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+			fPos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+			fPos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-			float pos[3];
-			pos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
-			pos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
-			pos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
+			float fPos[3];
+			fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
+			fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
+			fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
 
 			float fVel[3];
-			MakeVectorFromPoints(pos, pos2, fVel);
+			MakeVectorFromPoints(fPos, fPos2, fVel);
 
 			for (int i = 0; i < 3; i++)
 			{
 				fVel[i] *= RoundToFloor(gF_TickRate);
 			}
 
-			TeleportEntity(client, pos2, fAng, fVel);
+			TeleportEntity(client, fPos2, fAng, fVel);
 
 			if(GetArrayCell(gA_Frames[client], iFrameNum, 5) & IN_DUCK)
 			{
@@ -189,25 +189,25 @@ public Action Command_MinusOne(int client, int args)
 			fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 			fAng[2] = 0.0;
 			
-			float pos2[3];
-			pos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-			pos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-			pos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+			float fPos2[3];
+			fPos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+			fPos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+			fPos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-			float pos[3];
-			pos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
-			pos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
-			pos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
+			float fPos[3];
+			fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
+			fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
+			fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
 
 			float fVel[3];
-			MakeVectorFromPoints(pos2, pos, fVel);
+			MakeVectorFromPoints(fPos2, fPos, fVel);
 
 			for (int i = 0; i < 3; i++)
 			{
 				fVel[i] *= RoundToFloor(gF_TickRate);
 			}
 
-			TeleportEntity(client, pos, fAng, fVel);
+			TeleportEntity(client, fPos, fAng, fVel);
 
 			if(GetArrayCell(gA_Frames[client], iFrameNum, 5) & IN_DUCK)
 			{
@@ -450,17 +450,17 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					}
 					ResizeArray(gA_Frames[client], iFrameNum);
 					
-					float lpos[3];
+					float lfPos[3];
 					float lang[3];
 					float vVel[3];
 
-					GetEntPropVector(client, Prop_Send, "m_vecOrigin", lpos);
+					GetEntPropVector(client, Prop_Send, "m_vecOrigin", lfPos);
 					GetClientEyeAngles(client, lang);
 					GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", vVel);
 
-					SetArrayCell(gA_Frames[client], iFrameNum-1, lpos[0], 0);
-					SetArrayCell(gA_Frames[client], iFrameNum-1, lpos[1], 1);
-					SetArrayCell(gA_Frames[client], iFrameNum-1, lpos[2], 2);
+					SetArrayCell(gA_Frames[client], iFrameNum-1, lfPos[0], 0);
+					SetArrayCell(gA_Frames[client], iFrameNum-1, lfPos[1], 1);
+					SetArrayCell(gA_Frames[client], iFrameNum-1, lfPos[2], 2);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, lang[0], 3);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, lang[1], 4);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, buttons, 5);
@@ -513,12 +513,12 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 						fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 						fAng[2] = 0.0;
 						
-						float pos[3];
-						pos[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-						pos[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-						pos[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+						float fPos[3];
+						fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+						fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+						fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-						TeleportEntity(client, pos, fAng, view_as<float>({0.0, 0.0, 0.0}));
+						TeleportEntity(client, fPos, fAng, view_as<float>({0.0, 0.0, 0.0}));
 						//gF_TASTime[client] -= GetTickInterval();
 
 						if(GetArrayCell(gA_Frames[client], iFrameNum, 6) & FL_DUCKING)
@@ -556,25 +556,25 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 					fAng[2] = 0.0;
 					
-					float pos2[3];
-					pos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-					pos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-					pos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+					float fPos2[3];
+					fPos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+					fPos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+					fPos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-					float pos[3];
-					pos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
-					pos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
-					pos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
+					float fPos[3];
+					fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
+					fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
+					fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
 
 					float fVel[3];
-					MakeVectorFromPoints(pos2, pos, fVel);
+					MakeVectorFromPoints(fPos2, fPos, fVel);
 
 					for (int i = 0; i < 3; i++)
 					{
 						fVel[i] *= RoundToFloor(gF_TickRate);
 					}
 
-					TeleportEntity(client, pos, fAng, fVel);
+					TeleportEntity(client, fPos, fAng, fVel);
 
 					gF_IndexCounter[client] -= gF_CounterSpeed[client];
 					if(IsRound(gF_IndexCounter[client]))
@@ -602,25 +602,25 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 					fAng[2] = 0.0;
 					
-					float pos2[3];
-					pos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-					pos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-					pos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+					float fPos2[3];
+					fPos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+					fPos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+					fPos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-					float pos[3];
-					pos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
-					pos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
-					pos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
+					float fPos[3];
+					fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
+					fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
+					fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
 
 					float fVel[3];
-					MakeVectorFromPoints(pos, pos2, fVel);
+					MakeVectorFromPoints(fPos, fPos2, fVel);
 
 					for (int i = 0; i < 3; i++)
 					{
 						fVel[i] *= RoundToFloor(gF_TickRate);
 					}
 
-					TeleportEntity(client, pos2, fAng, fVel);
+					TeleportEntity(client, fPos2, fAng, fVel);
 
 					gF_IndexCounter[client] += gF_CounterSpeed[client];
 					if(IsRound(gF_IndexCounter[client]))
@@ -823,22 +823,22 @@ public void ResumePlayer(int client)
 		fAng[1] = GetArrayCell(gA_Frames[client], iFrameNum, 4);
 		fAng[2] = 0.0;
 		
-		float pos2[3];
-		pos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
-		pos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
-		pos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
+		float fPos2[3];
+		fPos2[0] = GetArrayCell(gA_Frames[client], iFrameNum, 0);
+		fPos2[1] = GetArrayCell(gA_Frames[client], iFrameNum, 1);
+		fPos2[2] = GetArrayCell(gA_Frames[client], iFrameNum, 2);
 
-		float pos[3];
-		pos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
-		pos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
-		pos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
+		float fPos[3];
+		fPos[0] = GetArrayCell(gA_Frames[client], iFrameNum-1, 0);
+		fPos[1] = GetArrayCell(gA_Frames[client], iFrameNum-1, 1);
+		fPos[2] = GetArrayCell(gA_Frames[client], iFrameNum-1, 2);
 		
 		float fVel[3];
 		fVel[0] = GetArrayCell(gA_Frames[client], iFrameNum, 8);
 		fVel[1] = GetArrayCell(gA_Frames[client], iFrameNum, 9);
 		fVel[2] = GetArrayCell(gA_Frames[client], iFrameNum, 10);
 
-		TeleportEntity(client, pos2, fAng, fVel);
+		TeleportEntity(client, fPos2, fAng, fVel);
 
 		if(GetArrayCell(gA_Frames[client], iFrameNum, 6) & FL_DUCKING)
 		{
@@ -889,7 +889,7 @@ public void Shavit_OnLeaveZone(int client, int type, int track, int id, int enti
 	}
 }
 
-public void Shavit_OnFinish_Post(int client)
+public void Shavit_OnFinish_fPost(int client)
 {
 	if(gB_TAS[client])
 	{
