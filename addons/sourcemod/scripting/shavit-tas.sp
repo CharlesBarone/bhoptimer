@@ -451,18 +451,18 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					ResizeArray(gA_Frames[client], iFrameNum);
 					
 					float fPos[3];
-					float lang[3];
+					float fLang[3];
 					float vVel[3];
 
 					GetEntPropVector(client, Prop_Send, "m_vecOrigin", fPos);
-					GetClientEyeAngles(client, lang);
+					GetClientEyeAngles(client, fLang);
 					GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", vVel);
 
 					SetArrayCell(gA_Frames[client], iFrameNum-1, fPos[0], 0);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, fPos[1], 1);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, fPos[2], 2);
-					SetArrayCell(gA_Frames[client], iFrameNum-1, lang[0], 3);
-					SetArrayCell(gA_Frames[client], iFrameNum-1, lang[1], 4);
+					SetArrayCell(gA_Frames[client], iFrameNum-1, fLang[0], 3);
+					SetArrayCell(gA_Frames[client], iFrameNum-1, fLang[1], 4);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, buttons, 5);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, GetEntityFlags(client), 6);
 					SetArrayCell(gA_Frames[client], iFrameNum-1, GetEntityMoveType(client), 7);
